@@ -7,12 +7,10 @@ services:
     restart: unless-stopped
     ports:
       - "18790:18790"
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      NANOBOT_MODEL: ${NANOBOT_MODEL:-openai/gpt-4o-mini}
-      NANOBOT_PORT: ${NANOBOT_PORT:-18790}
     volumes:
       - nanobot_data:/root/.nanobot
+      - codex_data:/root/.codex
 
 volumes:
   nanobot_data:
+  codex_data:
