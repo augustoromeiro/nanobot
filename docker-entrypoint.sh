@@ -1,44 +1,37 @@
 #!/bin/sh
 set -eu
 
-mkdir -p /root/.nanobot
 mkdir -p /root/.nanobot/workspace
 mkdir -p /root/.nanobot/memory
 mkdir -p /root/.nanobot/cron
 mkdir -p /root/.nanobot/media
-
-MODEL="${NANOBOT_MODEL:-openai/gpt-4o-mini}"
-PORT="${NANOBOT_PORT:-18790}"
+mkdir -p /root/.codex
 
 if [ ! -f /root/.nanobot/config.json ]; then
-  if [ -z "${OPENAI_API_KEY:-}" ]; then
-    echo "Erro: OPENAI_API_KEY não definida."
-    exit 1
-  fi
-
   cat > /root/.nanobot/config.json <<EOF
 {
-  "providers": {
-    "openai": {
-      "apiKey": "${OPENAI_API_KEY}"
-    }
-  },
   "agents": {
     "defaults": {
-      "model": "${MODEL}",
-      "workspace": "/root/.nanobot/workspace"
+      "workspace": "/root/.nanobot/workspace",
+      "model": "openai-codex/gpt-5.4"
+    }
+  },
+  "providers": {{
+    "openai": {
+      "apiKey": "dummy"
+    },
+    "openaiCodex": {
+      "apiKey": "dummy",
+      "apiBase": null,
+      "extraHeaders": null
     }
   },
   "gateway": {
-    "port": ${PORT}
+    "host": "0.0.0.0",
+    "port": 18790
   }
 }
 EOF
-
-  echo "config.json criado."
-else
-  echo "config.json já existe. Mantendo."
 fi
 
-echo "Iniciando nanobot gateway na porta ${PORT} com modelo ${MODEL}..."
 exec nanobot gateway --config /root/.nanobot/config.json
