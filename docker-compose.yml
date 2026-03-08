@@ -13,48 +13,47 @@ services:
       NANOBOT_PORT: ${NANOBOT_PORT:-18790}
     volumes:
       - nanobot_data:/root/.nanobot
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        set -e
+    entrypoint: ["/bin/sh", "-lc"]
+    command: |
+      set -e
 
-        mkdir -p /root/.nanobot/workspace
-        mkdir -p /root/.nanobot/memory
-        mkdir -p /root/.nanobot/cron
-        mkdir -p /root/.nanobot/media
+      mkdir -p /root/.nanobot
+      mkdir -p /root/.nanobot/workspace
+      mkdir -p /root/.nanobot/memory
+      mkdir -p /root/.nanobot/cron
+      mkdir -p /root/.nanobot/media
 
-        if [ ! -f /root/.nanobot/config.json ]; then
-          if [ -z "$OPENAI_API_KEY" ]; then
-            echo "Erro: OPENAI_API_KEY não definida."
-            exit 1
-          fi
-
-          cat > /root/.nanobot/config.json <<EOF
-        {
-          "providers": {
-            "openai": {
-              "apiKey": "${OPENAI_API_KEY}"
-            }
-          },
-          "agents": {
-            "defaults": {
-              "model": "${NANOBOT_MODEL}",
-              "workspace": "/root/.nanobot/workspace"
-            }
-          },
-          "gateway": {
-            "port": ${NANOBOT_PORT}
-          }
-        }
-        EOF
-
-          echo "config.json criado com sucesso."
-        else
-          echo "config.json já existe. Mantendo configuração atual."
+      if [ ! -f /root/.nanobot/config.json ]; then
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "Erro: OPENAI_API_KEY não definida."
+          exit 1
         fi
 
-        exec nanobot gateway --config /root/.nanobot/config.json
+        cat > /root/.nanobot/config.json <<EOF
+      {
+        "providers": {
+          "openai": {
+            "apiKey": "${OPENAI_API_KEY}"
+          }
+        },
+        "agents": {
+          "defaults": {
+            "model": "${NANOBOT_MODEL}",
+            "workspace": "/root/.nanobot/workspace"
+          }
+        },
+        "gateway": {
+          "port": ${NANOBOT_PORT}
+        }
+      }
+      EOF
+
+        echo "config.json criado com sucesso."
+      else
+        echo "config.json já existe. Mantendo configuração atual."
+      fi
+
+      exec nanobot gateway --config /root/.nanobot/config.json
 
   nanobot-cli:
     build:
@@ -64,15 +63,9 @@ services:
       - cli
     stdin_open: true
     tty: true
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      NANOBOT_MODEL: ${NANOBOT_MODEL:-openai/gpt-4o-mini}
-      NANOBOT_PORT: ${NANOBOT_PORT:-18790}
     volumes:
       - nanobot_data:/root/.nanobot
-    entrypoint: ["/bin/sh", "-lc"]
-    command: >
-      nanobot agent --config /root/.nanobot/config.json -m "Hello!"
+    command: ["status"]
 
 volumes:
   nanobot_data:
