@@ -242,8 +242,7 @@ class LiteLLMProvider(LLMProvider):
         kwargs: dict[str, Any] = {
             "model": model,
             "messages": self._sanitize_messages(self._sanitize_empty_content(messages), extra_keys=extra_msg_keys),
-            "max_tokens": max_tokens,
-            "temperature": temperature,
+            "max_tokens": max_tokens
         }
 
         # Apply model-specific overrides (e.g. kimi-k2.5 temperature)
